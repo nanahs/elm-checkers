@@ -3,3 +3,109 @@ $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
 @import '~bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 // can add Boostrap overrides, additional Sass/CSS below...
+
+.center{
+    text-align: center;
+}
+
+.space{
+    height: 50px;
+    background-color: lightgray;
+    &:after{
+        content: '.';
+        visibility: hidden;
+    }
+}
+
+.Red{
+    background-color: darkred;
+}
+
+.Black{
+    background-color: rgb(32, 32, 32);
+}
+
+div{
+    .scorescreen{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        background-color: lightgray;
+        border: 2px solid black;
+    }
+
+    .board{
+        display: inline-block;
+        border: 1px solid black;
+        align-content: center;
+
+        .row{
+            display: flex;
+            margin: 0;
+
+            .square{
+                position: relative;
+                width: 80px;
+                height: 80px;
+                background-color: darkred;
+                border: 1px solid black;
+        
+                text-align: center;
+                &:after{
+                    content: '.';
+                    visibility: hidden;
+                }
+
+                .checker{
+                    width: 65px;
+                    height: 65px;
+                    border-radius: 45px;
+                    margin: 4px;
+                    border: 1px solid whitesmoke;
+                    color: white;
+                    &::after{
+                        content: '.';
+                        visibility: hidden;
+                    }
+                    &.selected{
+                        border: 3px solid honeydew;
+                    }
+                    // .man{
+                    //     color: white;
+                    //     width: 65px;
+                    //     height: 65px;
+                    //     &::after{
+                    //         color: white;
+                    //         content: 'M';
+                    //     }
+                        
+                    // }
+                    .king{
+                        color: white;
+                        width: 65px;
+                        height: 65px;
+                        &::after{
+                            color: white;
+                            content: 'K';
+                        }
+                    }
+                }
+
+            }
+            &:nth-child(even){
+                .square{
+                    &:nth-child(even){
+                        background-color: rgb(32, 32, 32);
+                    }
+                }
+            }
+            &:nth-child(odd){
+                .square{
+                    &:nth-child(odd){
+                        background-color: rgb(32, 32, 32);
+                    }
+                }
+            }
+        }
+    }
+}

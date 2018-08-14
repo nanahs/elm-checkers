@@ -1,11 +1,14 @@
 module Main exposing (..)
+
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing ( onClick )
+import List exposing (..)
+import Tuple exposing (first, second, mapFirst, mapSecond)
 
--- component import example
-import Components.Hello exposing ( hello )
-
+import Helpers.TypeDec exposing (..)
+import Helpers.CheckersInit exposing (..)
+import Helpers.CheckerMovement exposing (..)
+import Helpers.CheckerHtml exposing (..)
 
 -- APP
 main : Program Never Model Msg
@@ -13,51 +16,123 @@ main =
   Html.beginnerProgram { model = model, view = view, update = update }
 
 
+selectionHelper : Square -> Bool -> Square
+selectionHelper square val =
+  { square | isSelected = val }
+
+selectSquareWithChecker : Square -> Board -> Board
+selectSquareWithChecker square board =
+  List.map ( \r -> List.map (\s -> if square == s then 
+                                    selectionHelper s True else
+                                    selectionHelper s False )
+                                    r ) board
+
 -- MODEL
-type alias Model = Int
-
 model : Model
-model = 0
-
+model =
+  initCheckers (0, 0)
 
 -- UPDATE
-type Msg = NoOp | Increment
-
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    NoOp -> model
-    Increment -> model + 1
+
+    SelectChecker square ->
+      case isaWinner model.board of
+        Nothing ->
+          { 
+            model | 
+              board = selectSquareWithChecker square model.board,
+              prevBoardState = model.board :: model.prevBoardState,
+              message = cleanMessage
+          }
+        _ ->
+          model
+    
+    MoveChecker square ->
+      let
+          maybePrevBoard = head model.prevBoardState
+          maybeNewBoard = tryToMoveToSquare model.playerTurn square model.board
+      in
+        case isaWinner model.board of
+          Nothing ->
+            case maybeNewBoard of
+              Nothing ->
+                { model | message = invalidMessage }
+              Just newBoard ->
+                case maybePrevBoard of
+                  Just prevBoard ->
+                    {
+                      model |
+                        board = newBoard,
+                        prevBoardState = newBoard :: model.prevBoardState,
+                        message = cleanMessage,
+                        playerTurn =  case model.playerTurn of
+                                        Red ->
+                                          Black
+                                        Black ->
+                                          Red
+                                        Neither ->
+                                          Neither
+                    }
+                  Nothing ->
+                    {
+                      model |
+                        board = newBoard,
+                        message = cleanMessage,
+                        prevBoardState = newBoard :: model.prevBoardState,
+                        
+                        playerTurn =  case model.playerTurn of
+                                        Red ->
+                                          Black
+                                        Black ->
+                                          Red
+                                        Neither ->
+                                          Neither
+                    }
+          _ ->
+            model
+    
+    Undo ->
+      let
+          newBoard = head model.prevBoardState
+      in
+        case newBoard of
+          Nothing ->
+            (initCheckers (0, 0))
+          Just b ->
+            case (tail model.prevBoardState) of
+              Just val ->
+                { 
+                  model | 
+                    board = b,
+                    prevBoardState = val 
+                }
+              Nothing ->
+                (initCheckers (0, 0))
+
+    Win player ->
+      if player == Black then
+        initCheckers ( first model.score + 1, second model.score )
+      else if player == Red then
+        initCheckers ( first model.score, second model.score + 1 )
+      else
+        initCheckers (0, 0)
 
 
 -- VIEW
--- Html is defined as: elem [ attribs ][ children ]
--- CSS can be applied via class names or inline style attrib
-view : Model -> Html Msg
+view: Model -> Html Msg
 view model =
-  div [ class "container", style [("margin-top", "30px"), ( "text-align", "center" )] ][    -- inline CSS (literal)
-    div [ class "row" ][
-      div [ class "col-xs-12" ][
-        div [ class "jumbotron" ][
-          img [ src "static/img/elm.jpg", style styles.img ] []                             -- inline CSS (via var)
-          , hello model                                                                     -- ext 'hello' component (takes 'model' as arg)
-          , p [] [ text ( "Elm Webpack Starter" ) ]
-          , button [ class "btn btn-primary btn-lg", onClick Increment ] [                  -- click handler
-            span[ class "glyphicon glyphicon-star" ][]                                      -- glyphicon
-            , span[][ text "FTW!" ]
-          ]
-        ]
-      ]
-    ]
+  div [ class "container center" ] [
+    turnHtml model,
+    scoreHtml model,
+    boardHtml model.board,
+    messageHtml model,
+    winScreenHtml model--,
+    -- div [] [ --TESTING SCORE
+    --   button [ onClick (Win Black) ] [ text "Add Point Black" ],
+    --   button [ onClick Win Neither ] [ text "Reset Score" ],
+    --   button [ onClick (Win Red) ] [ text "Add Point Red" ],
+    --   button [ onClick (Undo) ] [ text "Undo" ]
+    -- ]
   ]
-
-
--- CSS STYLES
-styles : { img : List ( String, String ) }
-styles =
-  {
-    img =
-      [ ( "width", "33%" )
-      , ( "border", "4px solid #337AB7")
-      ]
-  }
