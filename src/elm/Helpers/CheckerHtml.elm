@@ -11,6 +11,10 @@ import Helpers.CheckerMovement exposing (..)
 
 
 --HTML PIECES
+undoHtml :  Html Msg
+undoHtml =
+    button [ class "undoButton", onClick (Undo) ] [ text "Undo Previous Action" ]
+
 turnHtml : Model -> Html Msg
 turnHtml model =
   h1 [ class "container" ] [
@@ -26,9 +30,13 @@ turnHtml model =
 
 messageHtml : Model -> Html Msg
 messageHtml model =
-  h2 [ class model.message.class ] [
-    text model.message.text
-  ]
+
+  if model.message.show then
+    h2 [ class model.message.class ] [
+      text model.message.text
+    ]
+  else
+    h2 [] []
 
 scoreHtml : Model -> Html Msg
 scoreHtml model =

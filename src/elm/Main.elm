@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import List exposing (..)
 import Tuple exposing (first, second, mapFirst, mapSecond)
 
@@ -43,7 +44,6 @@ update msg model =
           { 
             model | 
               board = selectSquareWithChecker square model.board,
-              prevBoardState = model.board :: model.prevBoardState,
               message = cleanMessage
           }
         _ ->
@@ -65,7 +65,7 @@ update msg model =
                     {
                       model |
                         board = newBoard,
-                        prevBoardState = newBoard :: model.prevBoardState,
+                        prevBoardState = model.board :: model.prevBoardState,
                         message = cleanMessage,
                         playerTurn =  case model.playerTurn of
                                         Red ->
@@ -80,8 +80,7 @@ update msg model =
                       model |
                         board = newBoard,
                         message = cleanMessage,
-                        prevBoardState = newBoard :: model.prevBoardState,
-                        
+                        prevBoardState = model.board :: model.prevBoardState,
                         playerTurn =  case model.playerTurn of
                                         Red ->
                                           Black
@@ -95,21 +94,28 @@ update msg model =
     
     Undo ->
       let
-          newBoard = head model.prevBoardState
+          maybePrevBoard = head model.prevBoardState
       in
-        case newBoard of
+        case maybePrevBoard of
           Nothing ->
-            (initCheckers (0, 0))
+            model
           Just b ->
             case (tail model.prevBoardState) of
               Just val ->
                 { 
                   model | 
                     board = b,
-                    prevBoardState = val 
+                    prevBoardState = val,
+                    playerTurn =  case model.playerTurn of
+                                        Red ->
+                                          Black
+                                        Black ->
+                                          Red
+                                        Neither ->
+                                          Neither
                 }
               Nothing ->
-                (initCheckers (0, 0))
+                model
 
     Win player ->
       if player == Black then
@@ -128,11 +134,6 @@ view model =
     scoreHtml model,
     boardHtml model.board,
     messageHtml model,
-    winScreenHtml model--,
-    -- div [] [ --TESTING SCORE
-    --   button [ onClick (Win Black) ] [ text "Add Point Black" ],
-    --   button [ onClick Win Neither ] [ text "Reset Score" ],
-    --   button [ onClick (Win Red) ] [ text "Add Point Red" ],
-    --   button [ onClick (Undo) ] [ text "Undo" ]
-    -- ]
+    winScreenHtml model,
+    undoHtml
   ]
