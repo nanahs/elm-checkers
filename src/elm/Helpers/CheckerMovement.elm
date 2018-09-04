@@ -13,8 +13,8 @@ tryToMoveToSquare player destSquare board =
       Just val ->
 
         if destSquare.checkerColor /= Neither
-          || player /= val.checkerColor
-          || (destSquare.x + destSquare.y)%2 == 1 then
+            || player /= val.checkerColor
+            || (destSquare.x + destSquare.y)%2 == 1 then
           Nothing
         else
           if isValidMove val destSquare board then
@@ -77,7 +77,7 @@ canMove player startSquare destSquare board =
           False
       Red ->
         if (startSquare.y - destSquare.y) == 1
-            && ( abs ( startSquare.y - destSquare.y ) ) == 1 then
+            && ( abs ( startSquare.x - destSquare.x ) ) == 1 then
               True
         else
           False
