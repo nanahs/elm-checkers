@@ -1,5 +1,5 @@
 ### Features not working
-Force to jump and Draw via 50+ moves
+Force to jump, multijump, and Draw via 50+ moves
 
 ### Play Right Away:
 Open the index.html in the dist/ folder
