@@ -6,7 +6,7 @@ import List exposing (head, concat, filter, any)
 tryToMoveToSquare : Player -> Square -> Board -> Maybe Board
 tryToMoveToSquare player destSquare board =
   let
-      selectedSquare = getSelectedSquare board
+      selectedSquare = head (filter ((\square -> square.isSelected)) <| concat board)
   in
 
     case selectedSquare of
@@ -25,17 +25,6 @@ tryToMoveToSquare player destSquare board =
             Nothing
       Nothing ->
         Nothing
-
-tryToJumpToSqure : Square -> Board -> Board
-tryToJumpToSqure destSquare board =
-  let
-      selectedSquare = getSelectedSquare board
-  in
-      case selectedSquare of
-        Just val ->
-          jumpCheckerTo val destSquare board
-        Nothing ->
-          board
 
 isValidMove : Square -> Square -> Board -> Bool
 isValidMove startSquare destSquare board =
@@ -66,13 +55,9 @@ isValidJump startSquare destSquare board =
         Nothing ->
           False
 
-doesSquareMatchPos : Int -> Int -> Square -> Bool
-doesSquareMatchPos x y square =
-  square.x == x && square.y == y
-
 getSquareByXposYpos : Int -> Int -> Board -> Maybe Square
 getSquareByXposYpos x y board =
-  head (filter (doesSquareMatchPos x y) <| concat board)
+  head (filter (\square -> square.x == x && square.y == y) <| concat board)
 
 --Player type determines the direction that a man is allowed to move
 canMove : Player -> Square -> Square -> Board -> Bool
@@ -186,18 +171,9 @@ jumpCheckerTo startSquare destSquare board =
     ) row
   ) board
 
-getSelectedSquare : Board -> Maybe Square
-getSelectedSquare board = 
-  head (filter isSquareSelected <| concat board)
 
-isSquareSelected : Square -> Bool
-isSquareSelected square =
-  square.isSelected
+
   
-anySelectedSquare : Board -> Bool
-anySelectedSquare board =
-  List.any isSquareSelected <| concat board
-
 isSquareBetween : Square -> Square -> Square -> Bool
 isSquareBetween startSquare destSquare checkSquare =
   if abs ( startSquare.x - checkSquare.x ) == 1 && abs ( checkSquare.x - destSquare.x ) == 1
@@ -245,7 +221,7 @@ isaWinner board =
     draw = not redCanMove && not blackCanMove
   in
     if draw then
-      Nothing
+      Just Neither
     else if not blackCanMove then
       Just Red
     else if not redCanMove then

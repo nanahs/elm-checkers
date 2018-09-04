@@ -21,16 +21,15 @@ turnHtml model =
     case isaWinner model.board of
       Nothing ->
         text ((toString model.playerTurn ) ++ " Turn")
-      Just val ->
-        if val == Red then
-          text "Red Wins"
-        else
-          text "Black Wins"
+      Just player ->
+        case player of
+          Red -> text "Red Wins"
+          Black -> text "Black Wins"
+          Neither -> text "DRAW"
   ]
 
 messageHtml : Model -> Html Msg
 messageHtml model =
-
   if model.message.show then
     h2 [ class model.message.class ] [
       text model.message.text

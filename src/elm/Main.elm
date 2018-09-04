@@ -51,8 +51,7 @@ update msg model =
     
     MoveChecker square ->
       let
-          maybePrevBoard = head model.prevBoardState
-          maybeNewBoard = tryToMoveToSquare model.playerTurn square model.board
+        maybeNewBoard = tryToMoveToSquare model.playerTurn square model.board
       in
         case isaWinner model.board of
           Nothing ->
@@ -60,35 +59,19 @@ update msg model =
               Nothing ->
                 { model | message = invalidMessage }
               Just newBoard ->
-                case maybePrevBoard of
-                  Just prevBoard ->
-                    {
-                      model |
-                        board = newBoard,
-                        prevBoardState = model.board :: model.prevBoardState,
-                        message = cleanMessage,
-                        playerTurn =  case model.playerTurn of
-                                        Red ->
-                                          Black
-                                        Black ->
-                                          Red
-                                        Neither ->
-                                          Neither
-                    }
-                  Nothing ->
-                    {
-                      model |
-                        board = newBoard,
-                        message = cleanMessage,
-                        prevBoardState = model.board :: model.prevBoardState,
-                        playerTurn =  case model.playerTurn of
-                                        Red ->
-                                          Black
-                                        Black ->
-                                          Red
-                                        Neither ->
-                                          Neither
-                    }
+                {
+                  model |
+                    board = newBoard,
+                    message = cleanMessage,
+                    prevBoardState = model.board :: model.prevBoardState,
+                    playerTurn =  case model.playerTurn of
+                                    Red ->
+                                      Black
+                                    Black ->
+                                      Red
+                                    Neither ->
+                                      Neither
+                }
           _ ->
             model
     
